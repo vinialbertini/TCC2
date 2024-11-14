@@ -1,0 +1,114 @@
+﻿@page "/ConsultarVenda/{id:int}"
+@inject HttpClient http
+@inject NavigationManager NavigationManager
+@using System.Net.Http.Json
+@using BlazorApp1.Data
+<h2>Consultar Nota</h2>
+<hr />
+<EditForm Model="@vnd">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+    <div class="row">
+        <div class="col-md-4">
+            <div class="form-group">
+                <label for="Nome" class="control-label">Cliente</label>
+                <InputSelect @bind-Value="@vnd.Id_Cliente" class="form-control">
+                    @if (clientes != null)
+                    {
+                        @foreach (var cliente in clientes)
+                        {
+                            <option value="@cliente.Id">@cliente.Nome</option>
+                        }
+                    }
+                </InputSelect>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="form-group">
+                <label for="CPF_CNPJ" class="control-label">Documento</label>
+                <InputText @bind-Value="@vnd.CPF_CNPJ" class="form-control" />
+                <ValidationMessage For="@(()=> vnd.CPF_CNPJ)" />
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="form-group">
+                <label for="Nota" class="control-label">Nro Nota</label>
+                <InputNumber @bind-Value="@vnd.Nr_Nota" class="form-control" />
+                <ValidationMessage For="@(()=> vnd.Nr_Nota)" />
+            </div>
+        </div>
+        <div class="col-md-1">
+            <div class="form-group">
+                <label for="Serie" class="control-label">Série</label>
+                <InputNumber @bind-Value="@vnd.Serie" class="form-control" />
+                <ValidationMessage For="@(()=> vnd.Serie)" />
+            </div>
+        </div>
+        
+    </div>
+
+    <hr />
+    <h3>Produtos</h3>
+
+    @if (vnd == null)
+{
+    <h1>Não há dados para mostrar</h1>
+}
+else
+{
+    <table class='table'>
+        <thead>
+            <tr>
+                <th>Código</th>
+                <th>Produto</th>
+                <th>Quantidade</th>
+                <th>Valor</th>
+                <th>Total</th>
+            </tr>
+        </thead>
+        <tbody>
+                @foreach (var table in vnd.Itens)
+            {
+                <tr>
+                    <td>@table.Id_Produto</td>
+                        <td>@produtos.FirstOrDefault(p => p.Id == table.Id_Produto)?.Descricao</td>
+                    <td>@table.Quantidade</td>
+                    <td>@table.Valor</td>
+                    <td>@table.Total</td>
+                    
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+    <div class="row">
+        <div class="col-md-4">
+            <div class="form-group">               
+                <input type="button" class="btn btn-secondary" @onclick="@Voltar" value="Cancelar" />
+            </div>
+        </div>
+    </div>
+</EditForm>
+@code {
+    [Parameter]
+    public int id { get; set; }
+
+    List<Cliente> clientes { get; set; }
+    List<Produto> produtos { get; set; }
+    Venda vnd = new Venda();
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        vnd = await http.GetFromJsonAsync<Venda>("/api/Vendas/" + id);
+        clientes = await http.GetFromJsonAsync<List<Cliente>>("/api/clientes");
+        produtos = await http.GetFromJsonAsync<List<Produto>>("/api/produtos");
+    }
+
+    void Voltar()
+    {
+        NavigationManager.NavigateTo("Vendas");
+    }
+
+}

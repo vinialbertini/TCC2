@@ -1,0 +1,87 @@
+﻿@page "/editarproduto/{id:int}"
+@inject HttpClient http
+@inject NavigationManager NavigationManager
+@using BlazorApp1.Data
+@using System.Globalization;
+<h2>Editar</h2>
+<hr />
+<EditForm Model="@produtos" OnValidSubmit="Edit">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+    <div class="row">
+        <div class="col-md-8">
+            <div class="form-group">
+                <label for="Nome" class="control-produtos">Descrição</label>
+                <InputText @bind-Value="@produtos.Descricao" class="form-control" />
+                <ValidationMessage For="@(()=> produtos.Descricao)" />
+            </div>
+            <div class="form-group">
+                <label for="UN" class="control-label">Unidade</label>
+                <InputText @bind-Value="@produtos.UN" class="form-control" />
+                <ValidationMessage For="@(()=> produtos.UN)" />
+            </div>
+            <div class="form-group">
+                <label for="_Valor" class="control-label">Valor</label>
+                <div class="input-group">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text">R$</span>
+                    </div>                   
+                    <input type="text" class="form-control" placeholder="0,00" @oninput="OnValorInput" @bind="valorFormatado" />
+                </div>
+                <ValidationMessage For="@(() => _Valor)" />
+                <span class="form-text">Se cadastrado, vai aparecer automaticamente no momento da venda.</span>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-4">
+            <div class="form-group">
+                <input type="submit" class="btn btn-primary" value="Salvar" />
+                <input type="button" class="btn btn-secondary" @onclick="@Cancel" value="Cancelar" />
+            </div>
+        </div>
+    </div>
+</EditForm>
+@code {
+    [Parameter]
+    public int id { get; set; }
+    public string? _Valor { get; set; }
+    private string valorFormatado;
+
+    Produto produtos = new Produto();
+    protected override async Task OnInitializedAsync()
+    {
+        produtos = await http.GetFromJsonAsync<Produto>("/api/Produtos/" + id);
+        if (produtos.Valor.HasValue)
+        {
+            valorFormatado = produtos.Valor.Value.ToString("N2", CultureInfo.GetCultureInfo("pt-BR"));
+        }
+    }
+    protected async Task Edit()
+    {
+        await http.PutAsJsonAsync("/api/Produtos/" + id, produtos);
+        NavigationManager.NavigateTo("Produtos");
+    }
+    void Cancel()
+    {
+        NavigationManager.NavigateTo("Produtos");
+    }
+
+    private void OnValorInput(ChangeEventArgs args)
+    {
+        var input = args.Value.ToString();
+        if (decimal.TryParse(input, NumberStyles.Any, CultureInfo.GetCultureInfo("pt-BR"), out decimal valorDecimal))
+        {
+            // Formatar o valor com duas casas decimais
+            valorFormatado = valorDecimal.ToString("N2", CultureInfo.GetCultureInfo("pt-BR"));
+
+            // Atualizar o valor vinculado sem formatar no back-end
+            produtos.Valor = valorDecimal;
+        }
+        else
+        {
+            // Se não for um número válido, limpar o campo ou tratar conforme necessário
+            produtos.Valor = null;
+        }
+    }
+}

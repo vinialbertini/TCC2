@@ -1,0 +1,60 @@
+﻿@page "/Empresa"
+
+@using BlazorApp1.Data
+@inject HttpClient http
+@using System.Net.Http.Json
+
+<h3>Empresa</h3>
+<p>
+    <a href="/IncluirEmpresa">Criar Novo</a>
+</p>
+@if (emp == null)
+{
+    <h1>Não há dados para mostrar</h1>
+}
+else
+{
+    <table class='table'>
+        <thead>
+            <tr>
+                <th>Fantasia</th>
+                <!--<th>Razão Social</th>
+                <th>Endereço</th>
+                <th>Cep</th>
+                <th>Número</th>
+                <th>Complemento</th>
+                <th>Bairro</th>
+                <th>Cidade</th>
+                <th>UF</th>
+                <th>CNPJ</th>
+                <th>E-mail</th>
+                <th>Senha de Acesso</th>
+                <th>Certificado</th>
+                <th>Senha do Certificado</th>
+                <th>Data de Cadastro</th>
+                <th>Ambiente</th>-->
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var table in emp)
+            {
+                <tr>
+                    <td>@table.Fantasia</td>
+
+                    <td>
+                        <a href='/editarempresa/@table.Id'><button class="btn btn-primary" type="submit">Editar</button></a>
+
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+@code {
+    List<Empresas> emp;
+
+    protected override async Task OnInitializedAsync()
+    {
+        emp = await http.GetFromJsonAsync<List<Empresas>>("/api/empresa");
+    }
+} 

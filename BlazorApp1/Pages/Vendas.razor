@@ -1,0 +1,51 @@
+﻿@page "/Vendas"
+
+@using BlazorApp1.Data
+@inject HttpClient http
+@using System.Net.Http.Json
+@using System.Globalization
+
+<h3>Vendas</h3>
+<p>
+    <a href="/IncluirVenda">Criar Novo</a>
+</p>
+@if (vnd == null)
+{
+    <h1>Não há dados para mostrar</h1>
+}
+else
+{
+    <table class='table'>
+        <thead>
+            <tr>
+                <th>Número Nota</th>
+                <th style ="text-align: left;">Emissão</th>
+                <th style="text-align: left;">Cliente</th>
+                <th style="text-align: right;">Total da Nota</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var table in vnd)
+            {
+                <tr>
+                    <td style="width: 10%;">@table.Nr_Nota</td>
+                    <td style="text-align: left; width: 10%;"> @(table.Data_Emissao?.ToString("dd/MM/yyyy") ?? "Data não disponível")</td> <!-- Formatação da Data -->
+                    <td style="text-align: left;"> @table.Cliente.Nome</td>
+                    <td style="text-align: right;">@table.Total</td> <!-- Alinhamento à direita -->
+                    <td>
+                        <a href='/ConsultarVenda/@table.Id'>
+                            <button class="btn btn-primary" type="submit">Consultar</button>
+                        </a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+@code {
+    List<Venda> vnd;
+    protected override async Task OnInitializedAsync()
+    {
+        vnd = await http.GetFromJsonAsync<List<Venda>>("/api/Vendas");
+    }
+}

@@ -1,0 +1,65 @@
+﻿@page "/"
+@using BlazorApp1.Data
+@inject IJSRuntime JSRuntime
+@inject HttpClient http
+@using System.Net.Http.Json
+
+<PageTitle>Index</PageTitle>
+
+<h1>Dashboards</h1>
+
+<div id="chartContainer" style="display: flex; flex-direction: column; gap: 20px;">
+    <span class="form-text">Clientes que mais consomem. Tanto com valores quanto em quantidade</span>
+    <div id="chartdiv1" style="width: 100%; height: 250px; margin: auto;"></div>
+    <span class="form-text">Ranking 5 produtos que mais vendem.</span>
+    <div id="chartdiv2" style="width: 100%; height: 250px; margin: auto;"></div>
+</div>
+
+@code{
+
+    List<TopClienteDTO> graficoTopClientes;
+    List<TopClienteDTO> graficoTopClientesMaisCompras;
+    List<TopProdutoDTO> graficoTopProdutos;
+    bool isClientRendered = false;
+    bool isProdRendered = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await CarregarDadosGrafico();
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        // Verifica se já estamos no cliente e se os dados foram carregados
+        if (!isClientRendered && graficoTopClientes != null)
+        {
+            isClientRendered = true;
+            await GeraGraficoTopClientes();
+        }
+        if (!isProdRendered && graficoTopProdutos != null)
+        {
+            isProdRendered = true;
+            await GeraGraficoTopProdutos();
+        }
+    }
+
+    private async Task CarregarDadosGrafico()
+    {
+        graficoTopClientes = await http.GetFromJsonAsync<List<TopClienteDTO>>("/api/Vendas/TopClientes");
+        graficoTopClientesMaisCompras = await http.GetFromJsonAsync<List<TopClienteDTO>>("/api/Vendas/TopClientesMaisCompras");
+        graficoTopProdutos = await http.GetFromJsonAsync<List<TopProdutoDTO>>("/api/Vendas/TopProdutos");
+        StateHasChanged(); // Garante que o componente seja re-renderizado após carregar os dados
+    }
+
+    private async Task GeraGraficoTopClientes()
+    {
+        // Chama o método JS para gerar o gráfico apenas no cliente
+          await JSRuntime.InvokeVoidAsync("GeraGraficoTopClientes", graficoTopClientes, graficoTopClientesMaisCompras);
+    }
+
+    private async Task GeraGraficoTopProdutos()
+    {
+        // Chama o método JS para gerar o gráfico apenas no produto
+        await JSRuntime.InvokeVoidAsync("GeraGraficoTopProdutos", graficoTopProdutos);
+    }
+}

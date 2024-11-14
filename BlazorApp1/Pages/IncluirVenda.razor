@@ -1,0 +1,326 @@
+﻿@page "/IncluirVenda"
+@inject HttpClient http
+@inject NavigationManager NavigationManager
+@using BlazorApp1.Data
+@inject IJSRuntime JSRuntime
+
+<h2>Emitir Nota</h2>
+<hr />
+<EditForm Model="@vnd">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+    <div class="row">
+        <div class="col-md-4">
+            <div class="form-group">
+                <label for="Nome" class="control-label">Cliente</label>
+                <InputText @bind-Value="clientePesquisa" @oninput="FiltrarClientesPorNome" class="form-control" placeholder="Digite para buscar..." />
+                <div class="list-group" style="position: absolute; z-index: 1000;">
+                    @if (!string.IsNullOrEmpty(clientePesquisa) && clientesFiltrados.Any())
+                    {
+                        @foreach (var cliente in clientesFiltrados)
+                        {
+                            <button type="button" class="list-group-item list-group-item-action" @onclick="() => SelecionarCliente(cliente)">
+                                @cliente.Nome
+                            </button>
+                        }
+                    }
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="form-group">
+                <label for="CPF_CNPJ" class="control-label">Documento</label>
+                <InputText @bind-Value="documentoPesquisa" @oninput="FiltrarClientesPorDocumento" class="form-control" placeholder="Digite para buscar..." />
+                <ValidationMessage For="@(() => vnd.CPF_CNPJ)" />
+                <div class="list-group" style="position: absolute; z-index: 1000;">
+                    @if (!string.IsNullOrEmpty(documentoPesquisa) && clientesFiltrados.Any())
+                    {
+                        @foreach (var cliente in clientesFiltrados)
+                        {
+                            <button type="button" class="list-group-item list-group-item-action" @onclick="() => SelecionarCliente(cliente)">
+                                @cliente.CPF_CNPJ - @cliente.Nome
+                            </button>
+                        }
+                    }
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="form-group">
+                <label for="Nota" class="control-label">Nro Nota</label>
+                <InputNumber @bind-Value="@vnd.Nr_Nota" class="form-control" />
+                <ValidationMessage For="@(() => vnd.Nr_Nota)" />
+            </div>
+        </div>
+        <div class="col-md-1">
+            <div class="form-group">
+                <label for="Serie" class="control-label">Série</label>
+                <InputNumber @bind-Value="@vnd.Serie" class="form-control" />
+                <ValidationMessage For="@(() => vnd.Serie)" />
+            </div>
+        </div>
+    </div>
+
+    <hr />
+    <h3>Adicionar Produto</h3>
+    <div class="row">
+        <div class="col-md-1">
+            <div class="form-group">
+                <label for="Id_Produto" class="control-label">Código</label>
+                <InputText @bind-Value="codigoProdutoPesquisa" @oninput="FiltrarProdutosPorCodigo" class="form-control" placeholder="Digite o código..." />
+                <div class="list-group" style="position: absolute; z-index: 1000;">
+                    @if (!string.IsNullOrEmpty(codigoProdutoPesquisa) && produtosFiltrados.Any())
+                    {
+                        @foreach (var produto in produtosFiltrados)
+                        {
+                            <button type="button" class="list-group-item list-group-item-action" @onclick="() => SelecionarProduto(produto)">
+                                @produto.Id - @produto.Descricao
+                            </button>
+                        }
+                    }
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="form-group">
+                <label for="Produto" class="control-label">Produto</label>
+                <InputText @bind-Value="produtoPesquisa" @oninput="FiltrarProdutosPorDescricao" class="form-control" placeholder="Digite para buscar..." />
+                <div class="list-group" style="position: absolute; z-index: 1000;">
+                    @if (!string.IsNullOrEmpty(produtoPesquisa) && produtosFiltrados.Any())
+                    {
+                        @foreach (var produto in produtosFiltrados)
+                        {
+                            <button type="button" class="list-group-item list-group-item-action" @onclick="() => SelecionarProduto(produto)">
+                                @produto.Id - @produto.Descricao
+                            </button>
+                        }
+                    }
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="form-group">
+                <label for="Quantidade" class="control-label">Quantidade</label>
+                <InputNumber @bind-Value="@itens.Quantidade" class="form-control" />
+                <ValidationMessage For="@(() => itens.Quantidade)" />
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="form-group">
+                <label for="Valor" class="control-label">Valor</label>
+                <InputNumber @bind-Value="@itens.Valor" class="form-control" />
+                <ValidationMessage For="@(() => itens.Valor)" />
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="form-group">
+                <label for="TotalItem" class="control-label">Total</label>
+                <div class="input-group">
+                    <span class="form-control">@itens.TotalItem</span>
+                    <div class="input-group-append">
+                        <button class="btn btn-success" type="button" @onclick="AdicionarItem" style="margin-left: 5px;">
+                            <span class="oi oi-check"></span>
+                        </button>
+                    </div>
+                </div>
+                <ValidationMessage For="@(() => itens.Total)" />
+            </div>
+        </div>
+    </div>
+
+    @if (vnd == null)
+    {
+        <h1>Não há dados para mostrar</h1>
+    }
+    else
+    {
+        <table class='table'>
+            <thead>
+                <tr>
+                    <th>Código</th>
+                    <th>Produto</th>
+                    <th>Quantidade</th>
+                    <th>Valor</th>
+                    <th>Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var table in vnd.Itens)
+                {
+                    <tr>
+                        <td>@table.Id_Produto</td>
+                        <td>@produtos.FirstOrDefault(p => p.Id == table.Id_Produto)?.Descricao</td>
+                        <td>@table.Quantidade</td>
+                        <td>@table.Valor</td>
+                        <td>@table.Total</td>
+                        <td>
+                            <button class="btn btn-danger" @onclick="() => RemoverItem(table)">Excluir</button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+
+    <div class="row">
+        <div class="col-md-4">
+            <div class="form-group">
+                <input type="submit" class="btn btn-primary" @onclick="@criar" value="Salvar" />
+                <input type="button" class="btn btn-secondary" @onclick="@Cancel" value="Cancelar" />
+            </div>
+        </div>
+    </div>
+</EditForm>
+
+@code {
+    List<Cliente> clientes { get; set; }
+    List<Produto> produtos { get; set; }
+    List<Cliente> clientesFiltrados { get; set; }
+    List<Produto> produtosFiltrados { get; set; }
+    string clientePesquisa = string.Empty;
+    string documentoPesquisa = string.Empty;
+    string produtoPesquisa = string.Empty;
+    string codigoProdutoPesquisa = string.Empty;
+    decimal? ValorTotalVenda = 0;
+    protected override async Task OnInitializedAsync()
+    {
+        clientes = await http.GetFromJsonAsync<List<Cliente>>("/api/clientes");
+        produtos = await http.GetFromJsonAsync<List<Produto>>("/api/produtos");
+        clientesFiltrados = clientes;
+        produtosFiltrados = produtos;
+    }
+
+    Venda vnd = new Venda();
+    Item itens = new Item();
+
+    protected async Task criar()
+    {
+        vnd.Total = ValorTotalVenda;
+        vnd.Data_Emissao = DateTime.Now;
+        await http.PostAsJsonAsync("/api/Vendas/", vnd);
+        NavigationManager.NavigateTo("Vendas");
+    }
+
+    void Cancel()
+    {
+        NavigationManager.NavigateTo("Vendas");
+    }
+
+    void AdicionarItem()
+    {
+       /* vnd.Itens.Add(new Item
+            {
+                Id_Empresa = 1,
+                Id_Produto = itens.Id_Produto,
+                Quantidade = itens.Quantidade,
+                Valor = itens.Valor,
+                Total = itens.TotalItem
+            }); */
+        var novoItem = new Item
+            {
+                Id_Empresa = 1,
+                Id_Produto = itens.Id_Produto,
+                Quantidade = itens.Quantidade,
+                Valor = itens.Valor,
+                Total = itens.TotalItem
+            };
+
+        vnd.Itens.Add(novoItem);
+        ValorTotalVenda += novoItem.Total; // Atualiza o valor total da venda
+        LimparCamposItem();
+    }
+
+    void RemoverItem(Item item)
+    {
+        vnd.Itens.Remove(item);
+        ValorTotalVenda -= item.Total;
+    }
+
+    void LimparCamposItem()
+    {
+        itens = new Item();
+        produtoPesquisa = string.Empty; // Limpa a descrição do produto
+        codigoProdutoPesquisa = string.Empty; // Limpa o código do produto
+    }
+
+    void FiltrarClientesPorNome(ChangeEventArgs e)
+    {
+        clientePesquisa = e.Value.ToString();
+        if (string.IsNullOrEmpty(clientePesquisa))
+        {
+            clientesFiltrados = new List<Cliente>(); // Limpa a lista de clientes filtrados
+            documentoPesquisa = string.Empty; // Limpa o documento do cliente
+        }
+        else
+        {
+            clientesFiltrados = clientes
+                .Where(c => c.Nome.Contains(clientePesquisa, StringComparison.OrdinalIgnoreCase))
+                .ToList();
+        }
+    }
+
+    void FiltrarClientesPorDocumento(ChangeEventArgs e)
+    {
+        documentoPesquisa = e.Value.ToString();
+        if (string.IsNullOrEmpty(documentoPesquisa))
+        {
+            clientesFiltrados = new List<Cliente>(); // Limpa a lista de clientes filtrados
+            clientePesquisa = string.Empty; // Limpa o nome do cliente
+        }
+        else
+        {
+            clientesFiltrados = clientes
+                .Where(c => c.CPF_CNPJ.Contains(documentoPesquisa, StringComparison.OrdinalIgnoreCase))
+                .ToList();
+        }
+    }
+
+    void SelecionarCliente(Cliente cliente)
+    {
+        vnd.Id_Cliente = cliente.Id;
+        clientePesquisa = cliente.Nome;
+        documentoPesquisa = cliente.CPF_CNPJ; // Atualiza o documento do cliente
+        clientesFiltrados = new List<Cliente>(); // Limpa a lista de clientes filtrados
+    }
+
+    void FiltrarProdutosPorDescricao(ChangeEventArgs e)
+    {
+        produtoPesquisa = e.Value.ToString();
+        if (string.IsNullOrEmpty(produtoPesquisa))
+        {
+            produtosFiltrados = new List<Produto>(); // Limpa a lista de produtos filtrados
+            codigoProdutoPesquisa = string.Empty; // Limpa o código do produto ao limpar a descrição
+        }
+        else
+        {
+            produtosFiltrados = produtos
+                .Where(p => p.Descricao.Contains(produtoPesquisa, StringComparison.OrdinalIgnoreCase))
+                .ToList();
+        }
+    }
+
+    void FiltrarProdutosPorCodigo(ChangeEventArgs e)
+    {
+        codigoProdutoPesquisa = e.Value.ToString();
+        if (string.IsNullOrEmpty(codigoProdutoPesquisa))
+        {
+            produtosFiltrados = new List<Produto>(); // Limpa a lista de produtos filtrados
+            produtoPesquisa = string.Empty; // Limpa a descrição do produto ao limpar o código
+        }
+        else
+        {
+            produtosFiltrados = produtos
+                .Where(p => p.Id.ToString().Contains(codigoProdutoPesquisa, StringComparison.OrdinalIgnoreCase))
+                .ToList();
+        }
+    }
+
+    void SelecionarProduto(Produto produto)
+    {
+        itens.Id_Produto = produto.Id;
+        itens.Valor = produto.Valor; // Aqui preenche automaticamente o valor do item
+        produtoPesquisa = produto.Descricao;
+        codigoProdutoPesquisa = produto.Id.ToString();
+        produtosFiltrados = new List<Produto>(); // Limpa a lista de produtos filtrados
+    }
+}

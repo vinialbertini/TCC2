@@ -1,0 +1,334 @@
+﻿@page "/incluircliente"
+@inject HttpClient http
+@inject NavigationManager NavigationManager
+@using BlazorApp1.Data
+@using System.Text.RegularExpressions
+
+<h2>Cadastrar novo</h2>
+<hr />
+<EditForm Model="@clientes" OnValidSubmit="criar">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+    <div class="row">
+        <div class="col-md-8">
+            <div class="form-group">
+                <label for="Nome" class="control-label">Nome</label>
+                <InputText @bind-Value="@clientes.Nome" class="form-control" />
+                <ValidationMessage For="@(() => clientes.Nome)" />
+            </div>
+
+            <div class="form-group">
+                <label for="CPF_CNPJ" class="control-label">CPF/CNPJ</label>
+                <InputText @bind-Value="@clientes.CPF_CNPJ"
+                @oninput="OnCPF_CNPJChanged"
+                @onblur="OnCPF_CNPJBlur"
+                           maxlength="18"
+                           class="form-control" />
+                <ValidationMessage For="@(() => clientes.CPF_CNPJ)" />
+            </div>
+            @if (mostrarMensagemErroCPF)
+            {
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    CPF inválido.
+                    <button type="button" class="btn-close" aria-label="Close" @onclick="FecharMensagemErroCPF"></button>
+                </div>
+            }
+            @if (mostrarMensagemErroCNPJ)
+            {
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    CNPJ inválido.
+                    <button type="button" class="btn-close" aria-label="Close" @onclick="FecharMensagemErroCNPJ"></button>
+                </div>
+            }
+            @if (mostrarMensagemDocExistente)
+            {
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    Documento já cadastrado.
+                    <button type="button" class="btn-close" aria-label="Close" @onclick="FecharMensagemDocExistente"></button>
+                </div>
+            }
+            <div class="form-group">
+                <label for="RG" class="control-label">RG</label>
+                <InputText @bind-Value="@clientes.RG" class="form-control" />
+                <ValidationMessage For="@(() => clientes.RG)" />
+            </div>
+            <div class="form-group">
+                <label for="Telefone" class="control-label">Telefone</label>
+                <InputText @bind-Value="@clientes.Telefone" class="form-control" />
+                <ValidationMessage For="@(() => clientes.Telefone)" />
+            </div>
+            <div class="form-group">
+                <label for="Data_Nascimento" class="control-label">Data de Nascimento</label>
+                <InputDate @bind-Value="@clientes.Data_Nascimento" class="form-control" />
+                <ValidationMessage For="@(() => clientes.Data_Nascimento)" />
+            </div>
+
+            <div class="form-group">
+                <label for="CEP" class="control-label">CEP</label>
+                <div class="input-group">
+                    <InputText @bind-Value="@clientes.CEP" class="form-control" />
+                    <div class="input-group-append">
+                        <button class="btn btn-outline-secondary" type="button" @onclick="BuscarCEP" style="border: none;">
+                            <span class="oi oi-magnifying-glass"></span>
+                        </button>
+                    </div>
+                </div>
+                <ValidationMessage For="@(() => clientes.CEP)" />
+            </div>
+
+            @if (mostrarMensagemErro)
+            {
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    CEP não encontrado.
+                    <button type="button" class="btn-close" aria-label="Close" @onclick="FecharMensagemErro"></button>
+                </div>
+            }
+
+            <div class="form-group">
+                <label for="Endereco" class="control-label">Endereço</label>
+                <InputText @bind-Value="@clientes.Endereco" class="form-control" />
+                <ValidationMessage For="@(() => clientes.Endereco)" />
+            </div>
+
+            <div class="form-group">
+                <label for="Cidade" class="control-label">Cidade</label>
+                <InputText @bind-Value="@clientes.Cidade" class="form-control" />
+                <ValidationMessage For="@(() => clientes.Cidade)" />
+            </div>
+
+            <div class="form-group">
+                <label for="Estado" class="control-label">Estado</label>
+                <InputText @bind-Value="@clientes.Estado" class="form-control" />
+                <ValidationMessage For="@(() => clientes.Estado)" />
+            </div>
+
+            <div class="form-group">
+                <label for="Bairro" class="control-label">Bairro</label>
+                <InputText @bind-Value="@clientes.Bairro" class="form-control" />
+                <ValidationMessage For="@(() => clientes.Bairro)" />
+            </div>
+
+            <div class="form-group">
+                <label for="Complemento" class="control-label">Complemento</label>
+                <InputText @bind-Value="@clientes.Complemento" class="form-control" />
+                <ValidationMessage For="@(() => clientes.Complemento)" />
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-4">
+            <div class="form-group">
+                <input type="submit" class="btn btn-primary" value="Salvar" />
+                <input type="button" class="btn btn-secondary" @onclick="@Cancel" value="Cancelar" />
+            </div>
+        </div>
+    </div>
+</EditForm>
+
+@code {
+    Cliente clientes = new Cliente();
+    private bool mostrarMensagemErro = false;
+    private bool mostrarMensagemErroCPF = false;
+    private bool mostrarMensagemErroCNPJ = false;
+    private bool mostrarMensagemDocExistente = false;
+
+    protected async Task criar()
+    {
+        var docsemmascara = Regex.Replace(clientes.CPF_CNPJ.ToString(), @"[^\d]", "");
+        mostrarMensagemDocExistente = await VerificarCpfCnpjExistente(docsemmascara);
+
+        if (!mostrarMensagemDocExistente)
+        {
+            if (ValidarCPF(clientes.CPF_CNPJ))
+            {
+                mostrarMensagemErroCPF = false;
+                await http.PostAsJsonAsync("/api/Clientes/", clientes);
+                NavigationManager.NavigateTo("Clientes");
+            }
+            else
+            {
+                mostrarMensagemErroCPF = true;
+            }
+        }
+    }
+
+    void Cancel()
+    {
+        NavigationManager.NavigateTo("Clientes");
+    }
+
+    private async Task BuscarCEP()
+    {
+        mostrarMensagemErro = false;
+
+        if (!string.IsNullOrEmpty(clientes.CEP))
+        {
+            var response = await http.GetAsync($"https://viacep.com.br/ws/{clientes.CEP}/json/");
+            if (response.IsSuccessStatusCode)
+            {
+                var cepData = await response.Content.ReadFromJsonAsync<CepResponse>();
+                if (cepData != null && !cepData.Erro)
+                {
+                    clientes.Endereco = cepData.Logradouro;
+                    clientes.Bairro = cepData.Bairro;
+                    clientes.Cidade = cepData.Localidade;
+                    clientes.Estado = cepData.Uf;
+                    clientes.Complemento = cepData.Complemento;
+                    FecharMensagemErro();
+                }
+                else
+                {
+                    mostrarMensagemErro = true;
+                    LimparCampos();
+                }
+            }
+            else
+            {
+                mostrarMensagemErro = true;
+                LimparCampos();
+            }
+        }
+    }
+
+    private void FecharMensagemErro()
+    {
+        mostrarMensagemErro = false;
+    }
+
+    private void FecharMensagemErroCPF()
+    {
+        mostrarMensagemErroCPF = false;
+    }
+    private void FecharMensagemErroCNPJ()
+    {
+        mostrarMensagemErroCNPJ = false;
+    }
+    private void FecharMensagemDocExistente()
+    {
+        mostrarMensagemDocExistente = false;
+    }
+    private void LimparCampos()
+    {
+        clientes.Endereco = string.Empty;
+        clientes.Bairro = string.Empty;
+        clientes.Cidade = string.Empty;
+        clientes.Estado = string.Empty;
+        clientes.Complemento = string.Empty;
+    }
+
+    private void OnCPF_CNPJChanged(ChangeEventArgs e)
+    {
+        var valor = Regex.Replace(e.Value.ToString(), @"[^\d]", "");
+        if (valor.Length <= 11)
+        {
+            // Aplicar máscara CPF
+            if (valor.Length > 3) valor = valor.Insert(3, ".");
+            if (valor.Length > 7) valor = valor.Insert(7, ".");
+            if (valor.Length > 11) valor = valor.Insert(11, "-");
+        }
+        else
+        {
+            // Aplicar máscara CNPJ
+            if (valor.Length > 2) valor = valor.Insert(2, ".");
+            if (valor.Length > 6) valor = valor.Insert(6, ".");
+            if (valor.Length > 10) valor = valor.Insert(10, "/");
+            if (valor.Length > 15) valor = valor.Insert(15, "-");
+        }
+        clientes.CPF_CNPJ = valor;
+    }
+
+    private void OnCPF_CNPJBlur()
+    {
+        if (!string.IsNullOrEmpty(clientes.CPF_CNPJ))
+        {            
+            if (clientes.CPF_CNPJ.Length == 14)
+            {
+                mostrarMensagemErroCPF = !ValidarCPF(clientes.CPF_CNPJ);
+            }
+            else if (clientes.CPF_CNPJ.Length == 18)
+            {
+                mostrarMensagemErroCNPJ = !ValidarCNPJ(clientes.CPF_CNPJ);
+            }
+            else
+            {
+                mostrarMensagemErroCPF = true;
+            }
+        }
+    }
+
+    private bool ValidarCPF(string cpf)
+    {
+        cpf = cpf.Replace(".", "").Replace("-", "").Replace(" ", "");
+        if (cpf.Length != 11 || !cpf.All(char.IsDigit))
+            return false;
+
+        int[] digitos = cpf.Select(c => int.Parse(c.ToString())).ToArray();
+
+        int soma = 0;
+        int peso = 10;
+        for (int i = 0; i < 9; i++)
+        {
+            soma += digitos[i] * peso--;
+        }
+        int digito1 = soma % 11;
+        if (digito1 < 2) digito1 = 0;
+        else digito1 = 11 - digito1;
+
+        soma = 0;
+        peso = 11;
+        for (int i = 0; i < 10; i++)
+        {
+            soma += digitos[i] * peso--;
+        }
+        int digito2 = soma % 11;
+        if (digito2 < 2) digito2 = 0;
+        else digito2 = 11 - digito2;
+
+        return digito1 == digitos[9] && digito2 == digitos[10];
+    }
+
+    private bool ValidarCNPJ(string cnpj)
+    {
+        cnpj = cnpj.Replace(".", "").Replace("/", "").Replace("-", "").Replace(" ", "");
+        if (cnpj.Length != 14 || !cnpj.All(char.IsDigit))
+            return false;
+
+        int[] digitos = cnpj.Select(c => int.Parse(c.ToString())).ToArray();
+
+        int soma = 0;
+        int[] pesos1 = { 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2 };
+        for (int i = 0; i < 12; i++)
+        {
+            soma += digitos[i] * pesos1[i];
+        }
+        int digito1 = 11 - (soma % 11);
+        if (digito1 >= 10) digito1 = 0;
+
+        soma = 0;
+        int[] pesos2 = { 6, 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2 };
+        for (int i = 0; i < 13; i++)
+        {
+            soma += digitos[i] * pesos2[i];
+        }
+        int digito2 = 11 - (soma % 11);
+        if (digito2 >= 10) digito2 = 0;
+
+        return digito1 == digitos[12] && digito2 == digitos[13];
+    }
+
+    private async Task<bool> VerificarCpfCnpjExistente(string cpfCnpj)
+    {
+        var response = await http.GetAsync($"/api/Clientes/VerificarCpfCnpj/{cpfCnpj}");
+        return response.IsSuccessStatusCode && await response.Content.ReadFromJsonAsync<bool>();
+    }
+
+    public class CepResponse
+    {
+        public string Logradouro { get; set; }
+        public string Bairro { get; set; }
+        public string Localidade { get; set; }
+        public string Uf { get; set; }
+        public string Complemento { get; set; }
+        public bool Erro { get; set; }
+    }
+}

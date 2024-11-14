@@ -1,0 +1,170 @@
+﻿@page "/incluirempresa"
+@inject HttpClient http
+@inject NavigationManager NavigationManager
+@using BlazorApp1.Data
+<h2>Cadastrar novo</h2>
+<hr />
+<EditForm Model="@empresa" OnValidSubmit="criar">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+    <div class="row">
+        <div class="col-md-8">
+            <div class="form-group">
+                <label for="Nome" class="control-empresa">Fantasia</label>
+                <InputText @bind-Value="@empresa.Fantasia" class="form-control" />
+                <ValidationMessage For="@(()=> empresa.Fantasia)" />
+            </div>
+            <div class="form-group">
+                <label for="Nome" class="control-empresa">Razão Social</label>
+                <InputText @bind-Value="@empresa.Razao_Social" class="form-control" />
+                <ValidationMessage For="@(()=> empresa.Razao_Social)" />
+            </div>
+            <div class="form-group">
+                <label for="Nome" class="control-empresa">CNPJ</label>
+                <InputText @bind-Value="@empresa.CNPJ" class="form-control" />
+                <ValidationMessage For="@(()=> empresa.CNPJ)" />
+            </div>
+            <div class="form-group">
+                <label for="CEP" class="control-label">CEP</label>
+                <div class="input-group">
+                    <InputText @bind-Value="@empresa.CEP" class="form-control" />
+                    <div class="input-group-append">
+                        <button class="btn btn-outline-secondary" type="button" @onclick="BuscarCEP" style="border: none;">
+                            <span class="oi oi-magnifying-glass"></span>
+                        </button>
+                    </div>
+                </div>
+                <ValidationMessage For="@(()=> empresa.CEP)" />
+            </div>
+            @if (mostrarMensagemErro)
+            {
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    CEP não encontrado.
+                    <button type="button" class="btn-close" aria-label="Close" @onclick="FecharMensagemErro"></button>
+                </div>
+            }
+            <div class="form-group">
+                <label for="Nome" class="control-empresa">Endereço</label>
+                <InputText @bind-Value="@empresa.Endereco" class="form-control" />
+                <ValidationMessage For="@(()=> empresa.Endereco)" />
+            </div>
+            <div class="form-group">
+                <label for="Nome" class="control-empresa">Número</label>
+                <InputNumber @bind-Value="@empresa.Numero" class="form-control" />
+                <ValidationMessage For="@(()=> empresa.Numero)" />
+            </div>
+            <div class="form-group">
+                <label for="Nome" class="control-empresa">Bairro</label>
+                <InputText @bind-Value="@empresa.Bairro" class="form-control" />
+                <ValidationMessage For="@(()=> empresa.Bairro)" />
+            </div>
+            <div class="form-group">
+                <label for="Nome" class="control-empresa">Cidade</label>
+                <InputText @bind-Value="@empresa.Cidade" class="form-control" />
+                <ValidationMessage For="@(()=> empresa.Cidade)" />
+            </div>
+            <div class="form-group">
+                <label for="Nome" class="control-empresa">UF</label>
+                <InputText @bind-Value="@empresa.UF" class="form-control" />
+                <ValidationMessage For="@(()=> empresa.UF)" />
+            </div>
+            <div class="form-group">
+                <label for="Nome" class="control-empresa">Certificado</label>
+                <InputFile @bind-Value="@empresa.Certificado" class="form-control" />
+                <ValidationMessage For="@(()=> empresa.Certificado)" />
+            </div>
+            <div class="form-group">
+                <label for="Nome" class="control-empresa">Senha do Certificado</label>
+                <InputText @bind-Value="@empresa.Senha_Certificado" class="form-control" />
+                <ValidationMessage For="@(()=> empresa.Senha_Certificado)" />
+            </div>
+            <div class="form-group">
+                <label for="Nome" class="control-empresa">E-mail</label>
+                <InputText @bind-Value="@empresa.Email" class="form-control" />
+                <ValidationMessage For="@(()=> empresa.Email)" />
+            </div>
+            <div class="form-group">
+                <label for="Nome" class="control-empresa">Senha</label>
+                <InputText @bind-Value="@empresa.Senha_Acesso" class="form-control" type="password" />
+                <ValidationMessage For="@(()=> empresa.Senha_Acesso)" />
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-4">
+            <div class="form-group">
+                <input type="submit" class="btn btn-primary" value="Salvar" />
+                <input type="button" class="btn btn-secondary" @onclick="@Cancel" value="Cancelar" />
+            </div>
+        </div>
+    </div>
+</EditForm>
+@code {
+    Empresas empresa = new Empresas();
+    private bool mostrarMensagemErro = false;
+    protected async Task criar()
+    {
+        await http.PostAsJsonAsync("/api/empresa/", empresa);
+        NavigationManager.NavigateTo("Empresa");
+    }
+    void Cancel()
+    {
+        NavigationManager.NavigateTo("Empresa");
+    }
+    private async Task BuscarCEP()
+    {
+        mostrarMensagemErro = false;
+
+        if (!string.IsNullOrEmpty(empresa.CEP))
+        {
+            var response = await http.GetAsync($"https://viacep.com.br/ws/{empresa.CEP}/json/");
+            if (response.IsSuccessStatusCode)
+            {
+                var cepData = await response.Content.ReadFromJsonAsync<CepResponse>();
+                if (cepData != null && !cepData.Erro)
+                {
+                    // Preencher os campos com os dados do CEP
+                    // Por exemplo:
+                    empresa.Endereco = cepData.Logradouro;
+                    empresa.Bairro = cepData.Bairro;
+                    empresa.Cidade = cepData.Localidade;
+                    empresa.UF = cepData.Uf;
+                    empresa.Complemento = cepData.Complemento;
+                    FecharMensagemErro();
+                }
+                else
+                {
+                    mostrarMensagemErro = true;
+                    LimparCampos();
+                }
+            }
+            else
+            {
+                mostrarMensagemErro = true;
+                LimparCampos();
+            }
+        }
+    }
+    private void FecharMensagemErro()
+    {
+        mostrarMensagemErro = false;
+    }
+
+    private void LimparCampos()
+    {
+        empresa.Endereco = string.Empty;
+        empresa.Bairro = string.Empty;
+        empresa.Cidade = string.Empty;
+        empresa.UF = string.Empty;
+        empresa.Complemento = string.Empty;
+    }
+    public class CepResponse
+    {
+        public string Logradouro { get; set; }
+        public string Bairro { get; set; }
+        public string Localidade { get; set; }
+        public string Uf { get; set; }
+        public string Complemento { get; set; }
+        public bool Erro { get; set; }
+    }
+}

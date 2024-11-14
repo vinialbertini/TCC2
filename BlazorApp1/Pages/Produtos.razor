@@ -1,0 +1,51 @@
+﻿@page "/Produtos"
+
+@using BlazorApp1.Data
+@inject HttpClient http
+@using System.Net.Http.Json
+
+<h3>Produtos</h3>
+<p>
+    <a href="/IncluirProduto">Criar Novo</a>
+</p>
+@if (prd == null)
+{
+    <h1>Não há dados para mostrar</h1>
+}
+else
+{
+    <table class='table'>
+        <thead>
+            <tr>
+                <th>Código</th>
+                <th>Descrição</th>
+                <th>Unidade</th>
+                <th>Valor</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var table in prd)
+            {
+                <tr>
+                    <td>@table.Id</td>
+                    <td>@table.Descricao</td>
+                    <td>@table.UN</td>
+                    <td>@table.Valor</td>
+
+                    <td>
+                        <a href='/editarproduto/@table.Id'><button class="btn btn-primary" type="submit">Editar</button></a>
+                        <a href='/ExcluirProduto/@table.Id'><button class="btn btn-danger">Deletar</button></a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+@code {
+    List<Produto> prd;
+
+    protected override async Task OnInitializedAsync()
+    {
+        prd = await http.GetFromJsonAsync<List<Produto>>("/api/produtos");
+    }
+} 

@@ -1,0 +1,62 @@
+﻿@page "/Clientes"
+
+@using BlazorApp1.Data
+@inject HttpClient http
+@using System.Net.Http.Json
+
+<h3>Clientes</h3>
+<p>
+    <a href="/IncluirCliente">Criar Novo</a>
+</p>
+@if (cli == null)
+{
+    <h1>Não há dados para mostrar</h1>
+}
+else
+{
+    <table class='table'>
+        <thead>
+            <tr>
+                <th>Código</th>
+                <th>Nome</th>
+                <!--<th>Razão Social</th>
+                <th>Endereço</th>
+                <th>Cep</th>
+                <th>Número</th>
+                <th>Complemento</th>
+                <th>Bairro</th>
+                <th>Cidade</th>
+                <th>UF</th>
+                <th>CNPJ</th>
+                <th>E-mail</th>
+                <th>Senha de Acesso</th>
+                <th>Certificado</th>
+                <th>Senha do Certificado</th>
+                <th>Data de Cadastro</th>
+                <th>Ambiente</th>-->
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var table in cli)
+            {
+                <tr>
+                    <td>@table.Id</td>
+                    <td>@table.Nome</td>
+
+                    <td>
+                        <a href='/editarcliente/@table.Id'><button class="btn btn-primary" type="submit">Editar</button></a>
+                        <a href='/Excluircliente/@table.Id'><button class="btn btn-danger">Deletar</button></a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+@code {
+    List<Cliente> cli;
+
+    protected override async Task OnInitializedAsync()
+    {
+        cli = await http.GetFromJsonAsync<List<Cliente>>("/api/clientes");
+    }
+} 

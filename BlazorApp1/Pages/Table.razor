@@ -1,0 +1,44 @@
+﻿@page "/Table_1"
+
+@using BlazorApp1.Data
+@inject HttpClient http
+@using System.Net.Http.Json
+
+<h3>Table_1</h3>
+<p>
+    <a href="/Incluir">Criar Novo</a>
+</p>
+@if (tabela1 == null)
+{
+    <h1>Não há dados para mostrar</h1>
+}
+else
+{
+    <table class='table'>
+        <thead>
+            <tr>
+                <th>Descricao</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var table in tabela1)
+            {
+                <tr>
+                    <td>@table.Descricao</td>
+                    <td>
+                        <a href='/editar/@table.Id'><button class="btn btn-primary" type="submit">Editar</button></a>
+                        <a href='/deletar/@table.Id'><button class="btn btn-danger">Deletar</button></a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+@code {
+    List<Tables_1> tabela1;
+
+    protected override async Task OnInitializedAsync()
+    {
+        tabela1 = await http.GetFromJsonAsync<List<Tables_1>>("/api/table_1");
+    }
+} 

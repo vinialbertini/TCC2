@@ -1,0 +1,165 @@
+﻿@page "/editarcliente/{id:int}"
+@inject HttpClient http
+@inject NavigationManager NavigationManager
+@using BlazorApp1.Data
+<h2>Editar</h2>
+<hr />
+<EditForm Model="@clientes" OnValidSubmit="Edit">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+    <div class="row">
+        <div class="col-md-8">
+            <div class="form-group">
+                <label for="Nome" class="control-label">Nome</label>
+                <InputText @bind-Value="@clientes.Nome" class="form-control" />
+                <ValidationMessage For="@(()=> clientes.Nome)" />
+            </div>
+            <div class="form-group">
+                <label for="CPF_CNPJ" class="control-label">CPF</label>
+                <InputText @bind-Value="@clientes.CPF_CNPJ" class="form-control" />
+                <ValidationMessage For="@(()=> clientes.CPF_CNPJ)" />
+            </div>
+            <div class="form-group">
+                <label for="RG" class="control-label">RG</label>
+                <InputText @bind-Value="@clientes.RG" class="form-control" />
+                <ValidationMessage For="@(()=> clientes.RG)" />
+            </div>
+            <div class="form-group">
+                <label for="Data_Nascimento" class="control-label">Data de Nascimento</label>
+                <InputDate @bind-Value="@clientes.Data_Nascimento" class="form-control" />
+                <ValidationMessage For="@(()=> clientes.Data_Nascimento)" />
+            </div>
+            <div class="form-group">
+                <label for="CEP" class="control-label">CEP</label>
+                <div class="input-group">
+                    <InputText @bind-Value="@clientes.CEP" class="form-control" />
+                    <div class="input-group-append">
+                        <button class="btn btn-outline-secondary" type="button" @onclick="BuscarCEP" style="border: none;">
+                            <span class="oi oi-magnifying-glass"></span>
+                        </button>
+                    </div>
+                </div>
+                <ValidationMessage For="@(()=> clientes.CEP)" />
+            </div>
+
+            @if (mostrarMensagemErro)
+            {
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    CEP não encontrado.
+                    <button type="button" class="btn-close" aria-label="Close" @onclick="FecharMensagemErro"></button>
+                </div>
+            }
+            <div class="form-group">
+                <label for="Endereco" class="control-label">Endereço</label>
+                <InputText @bind-Value="@clientes.Endereco" class="form-control" />
+                <ValidationMessage For="@(()=> clientes.Endereco)" />
+            </div>
+            <div class="form-group">
+                <label for="Cidade" class="control-label">Cidade</label>
+                <InputText @bind-Value="@clientes.Cidade" class="form-control" />
+                <ValidationMessage For="@(()=> clientes.Cidade)" />
+            </div>
+            <div class="form-group">
+                <label for="Estado" class="control-label">Estado</label>
+                <InputText @bind-Value="@clientes.Estado" class="form-control" />
+                <ValidationMessage For="@(()=> clientes.Estado)" />
+            </div>
+            <div class="form-group">
+                <label for="Bairro" class="control-label">Bairro</label>
+                <InputText @bind-Value="@clientes.Bairro" class="form-control" />
+                <ValidationMessage For="@(()=> clientes.Bairro)" />
+            </div>
+            <div class="form-group">
+                <label for="Complemento" class="control-label">Complemento</label>
+                <InputText @bind-Value="@clientes.Complemento" class="form-control" />
+                <ValidationMessage For="@(()=> clientes.Complemento)" />
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-4">
+            <div class="form-group">
+                <input type="submit" class="btn btn-primary" value="Salvar" />
+                <input type="button" class="btn btn-secondary" @onclick="@Cancel" value="Cancelar" />
+            </div>
+        </div>
+    </div>
+</EditForm>
+@code {
+    [Parameter]
+    public int id { get; set; }
+
+    Cliente clientes = new Cliente();
+    private bool mostrarMensagemErro = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        clientes = await http.GetFromJsonAsync<Cliente>("/api/Clientes/" + id);
+    }
+    protected async Task Edit()
+    {
+        await http.PutAsJsonAsync("/api/Clientes/" + id, clientes);
+        NavigationManager.NavigateTo("Clientes");
+    }
+    void Cancel()
+    {
+        NavigationManager.NavigateTo("Clientes");
+    }
+
+    private async Task BuscarCEP()
+    {
+        mostrarMensagemErro = false;
+
+        if (!string.IsNullOrEmpty(clientes.CEP))
+        {
+            var response = await http.GetAsync($"https://viacep.com.br/ws/{clientes.CEP}/json/");
+            if (response.IsSuccessStatusCode)
+            {
+                var cepData = await response.Content.ReadFromJsonAsync<CepResponse>();
+                if (cepData != null && !cepData.Erro)
+                {
+                    // Preencher os campos com os dados do CEP
+                    // Por exemplo:
+                    clientes.Endereco = cepData.Logradouro;
+                    clientes.Bairro = cepData.Bairro;
+                    clientes.Cidade = cepData.Localidade;
+                    clientes.Estado = cepData.Uf;
+                    clientes.Complemento = cepData.Complemento;
+                    FecharMensagemErro();
+                }
+                else
+                {
+                    mostrarMensagemErro = true;
+                    LimparCampos();
+                }
+            }
+            else
+            {
+                mostrarMensagemErro = true;
+                LimparCampos();
+            }
+        }
+    }
+    private void FecharMensagemErro()
+    {
+        mostrarMensagemErro = false;
+    }
+
+    private void LimparCampos()
+    {
+        clientes.Endereco = string.Empty;
+        clientes.Bairro = string.Empty;
+        clientes.Cidade = string.Empty;
+        clientes.Estado = string.Empty;
+        clientes.Complemento = string.Empty;
+    }
+    public class CepResponse
+    {
+        public string Logradouro { get; set; }
+        public string Bairro { get; set; }
+        public string Localidade { get; set; }
+        public string Uf { get; set; }
+        public string Complemento { get; set; }
+        public bool Erro { get; set; }
+    }
+}

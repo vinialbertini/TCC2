@@ -1,0 +1,95 @@
+﻿@page "/incluirproduto"
+@inject HttpClient http
+@inject NavigationManager NavigationManager
+@using BlazorApp1.Data
+@inject IJSRuntime JS
+
+
+<h2>Cadastrar novo</h2>
+<hr />
+<EditForm Model="@produtos" OnValidSubmit="criar">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+    <div class="row">
+        <div class="col-md-8">
+            <div class="form-group">
+                <label for="Empresa" class="control-label">Empresa</label>
+                <InputNumber @bind-Value="@produtos.Id_Empresa" class="form-control" />
+                <ValidationMessage For="@(()=> produtos.Id_Empresa)" />
+            </div>
+            <div class="form-group">
+                <label for="Descricao" class="control-label">Descrição</label>
+                <InputText @bind-Value="@produtos.Descricao" class="form-control" />
+                <ValidationMessage For="@(()=> produtos.Descricao)" />
+            </div>
+            <div class="form-group">
+                <label for="UN" class="control-label">Unidade</label>
+                <InputText @bind-Value="@produtos.UN" class="form-control" />
+                <ValidationMessage For="@(()=> produtos.UN)" />
+            </div>
+            <div class="form-group">
+                <label for="_Valor" class="control-label">Valor</label>
+                <div class="input-group">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text">R$</span>
+                    </div>
+                    <InputText @bind-Value="@_Valor" class="form-control" placeholder="0,00" oninput="@((ChangeEventArgs args) => OnValorInput(args))" /> 
+                </div>
+                <ValidationMessage For="@(() => _Valor)" />
+                <span class="form-text">Se cadastrado, vai aparecer automaticamente no momento da venda.</span>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-4">
+            <div class="form-group">
+                <input type="submit" class="btn btn-primary" value="Salvar" />
+                <input type="button" class="btn btn-secondary" @onclick="@Cancel" value="Cancelar" />
+            </div>
+        </div>
+    </div>
+</EditForm>
+@code {
+    Produto produtos = new Produto();   
+    public string? _Valor { get; set; }
+
+    protected async Task criar()
+    {
+        await http.PostAsJsonAsync("/api/Produtos/", produtos);
+        NavigationManager.NavigateTo("Produtos");
+    }
+    void Cancel()
+    {
+        NavigationManager.NavigateTo("Produtos");
+    }
+
+    private string valorTexto = "";
+
+    private void OnValorInput(ChangeEventArgs args)
+    {
+        string valorDigitado = args.Value?.ToString().Replace(".", "").Replace(",", "");
+
+        if (decimal.TryParse(valorDigitado, out decimal valorDecimal))
+        {
+            // Divida por 100 para obter a representação correta com duas casas decimais
+            valorDecimal /= 100;
+
+            // Formate o valor com duas casas decimais e separadores de milhar
+            var valorFormatado = valorDecimal.ToString("N2", System.Globalization.CultureInfo.GetCultureInfo("pt-BR"));
+
+            // Atualize o valor do campo de entrada para o valor formatado
+            valorTexto = valorFormatado;
+
+            // Atualize o valor do produto
+            _Valor = valorTexto;
+            produtos.Valor = valorDecimal;
+        }
+        else
+        {
+            // Se não for um número válido, mantenha o valor anterior
+            valorTexto = args.Value?.ToString();
+            produtos.Valor = null;
+        }
+    }
+
+}

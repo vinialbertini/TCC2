@@ -1,0 +1,133 @@
+is_global = true
+build_property.TargetFramework = net6.0
+build_property.TargetPlatformMinVersion = 
+build_property.UsingMicrosoftNETSdkWeb = true
+build_property.ProjectTypeGuids = 
+build_property.InvariantGlobalization = 
+build_property.PlatformNeutralAssembly = 
+build_property.EnforceExtendedAnalyzerRules = 
+build_property._SupportedPlatformList = Linux,macOS,Windows
+build_property.RootNamespace = BlazorApp1
+build_property.RootNamespace = BlazorApp1
+build_property.ProjectDir = C:\teste\BlazorApp1\BlazorApp1\
+build_property.RazorLangVersion = 6.0
+build_property.SupportLocalizedComponentNames = 
+build_property.GenerateRazorMetadataSourceChecksumAttributes = 
+build_property.MSBuildProjectDirectory = C:\teste\BlazorApp1\BlazorApp1
+build_property._RazorSourceGeneratorDebug = 
+
+[C:/teste/BlazorApp1/BlazorApp1/App.razor]
+build_metadata.AdditionalFiles.TargetPath = QXBwLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/teste/BlazorApp1/BlazorApp1/Pages/Clientes.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQ2xpZW50ZXMucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/teste/BlazorApp1/BlazorApp1/Pages/ConsultarVenda.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQ29uc3VsdGFyVmVuZGEucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/teste/BlazorApp1/BlazorApp1/Pages/EditarCliente.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcRWRpdGFyQ2xpZW50ZS5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/teste/BlazorApp1/BlazorApp1/Pages/EditarEmpresa.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcRWRpdGFyRW1wcmVzYS5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/teste/BlazorApp1/BlazorApp1/Pages/EditarProduto.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcRWRpdGFyUHJvZHV0by5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/teste/BlazorApp1/BlazorApp1/Pages/Empresa.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcRW1wcmVzYS5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/teste/BlazorApp1/BlazorApp1/Pages/Excluir.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcRXhjbHVpci5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/teste/BlazorApp1/BlazorApp1/Pages/ExcluirCliente.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcRXhjbHVpckNsaWVudGUucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/teste/BlazorApp1/BlazorApp1/Pages/ExcluirProduto.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcRXhjbHVpclByb2R1dG8ucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/teste/BlazorApp1/BlazorApp1/Pages/IncluirCliente.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcSW5jbHVpckNsaWVudGUucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/teste/BlazorApp1/BlazorApp1/Pages/IncluirEmpresa.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcSW5jbHVpckVtcHJlc2EucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/teste/BlazorApp1/BlazorApp1/Pages/IncluirProduto.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcSW5jbHVpclByb2R1dG8ucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/teste/BlazorApp1/BlazorApp1/Pages/IncluirVenda.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcSW5jbHVpclZlbmRhLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/teste/BlazorApp1/BlazorApp1/Pages/Index.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcSW5kZXgucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/teste/BlazorApp1/BlazorApp1/Pages/Produtos.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcUHJvZHV0b3MucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/teste/BlazorApp1/BlazorApp1/Pages/Table.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcVGFibGUucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/teste/BlazorApp1/BlazorApp1/Pages/Vendas.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcVmVuZGFzLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/teste/BlazorApp1/BlazorApp1/Shared/LoginDisplay.razor]
+build_metadata.AdditionalFiles.TargetPath = U2hhcmVkXExvZ2luRGlzcGxheS5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/teste/BlazorApp1/BlazorApp1/Shared/SurveyPrompt.razor]
+build_metadata.AdditionalFiles.TargetPath = U2hhcmVkXFN1cnZleVByb21wdC5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/teste/BlazorApp1/BlazorApp1/_Imports.razor]
+build_metadata.AdditionalFiles.TargetPath = X0ltcG9ydHMucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/teste/BlazorApp1/BlazorApp1/Shared/MainLayout.razor]
+build_metadata.AdditionalFiles.TargetPath = U2hhcmVkXE1haW5MYXlvdXQucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = b-45rkf8v3vv
+
+[C:/teste/BlazorApp1/BlazorApp1/Shared/NavMenu.razor]
+build_metadata.AdditionalFiles.TargetPath = U2hhcmVkXE5hdk1lbnUucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = b-b5wscdn8ts
+
+[C:/teste/BlazorApp1/BlazorApp1/Areas/Identity/Pages/Account/LogOut.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXNcSWRlbnRpdHlcUGFnZXNcQWNjb3VudFxMb2dPdXQuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/teste/BlazorApp1/BlazorApp1/Areas/Identity/Pages/Shared/_LoginPartial.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXNcSWRlbnRpdHlcUGFnZXNcU2hhcmVkXF9Mb2dpblBhcnRpYWwuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/teste/BlazorApp1/BlazorApp1/Pages/_Host.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcX0hvc3QuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/teste/BlazorApp1/BlazorApp1/Pages/_Layout.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcX0xheW91dC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/teste/BlazorApp1/BlazorApp1/Pages/_ValidationScriptsPartial.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcX1ZhbGlkYXRpb25TY3JpcHRzUGFydGlhbC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/teste/BlazorApp1/BlazorApp1/Views/Shared/_ValidationScriptsPartial.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9WYWxpZGF0aW9uU2NyaXB0c1BhcnRpYWwuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 

@@ -1,0 +1,88 @@
+﻿
+@page "/deletar/{id:int}"
+@inject NavigationManager NavigationManager
+@inject HttpClient http
+@inject IWebHostEnvironment Env
+@using BlazorApp1.Data
+
+<h2>Confirma Exclusão ?</h2>
+<p>Deseja realmente deletar este registro com Id: <b> @id</b></p>
+<br />
+<Aviso Exibir="Exibir">
+    <strong>@Mensagem</strong>
+</Aviso>
+<div class="col-md-5">
+    <table class='table'>
+        <thead>
+            <tr>
+                <td>Descrição</td>
+                <td>@tabela.Descricao</td>
+            </tr>
+            <tr>
+                <td>Email</td>
+                <td>vinialbertini@yahoo.com.br</td>
+            </tr>
+            <tr>
+                <td>Idade</td>
+                <td>37</td>
+            </tr>
+        </thead>
+    </table>
+    <div class="form-group">
+        <input type="button" value="Deletar" @onclick="@Delete" class="btn btn-danger" />
+        <input type="button" value="Cancelar" @onclick="@Cancel" class="btn btn-secondary" />
+    </div>
+</div>
+@code {
+    bool Exibir = false;
+    [Parameter]
+    public string Mensagem { get; set; }
+    [Parameter]
+    public int id { get; set; }   
+
+    Tables_1 tabela = new Tables_1();
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            tabela = await http.GetFromJsonAsync<Tables_1>("/api/table_1/" + id);
+        }
+        catch (Exception ex)
+        {
+            Exibir = true;
+            if (Env.IsDevelopment())
+            {
+                Mensagem = "Erro ao acessar os dados ...\n" + ex.StackTrace.ToString();
+            }
+            else
+            {
+                Mensagem = "Não foi possível acessar o aluno ...";
+            }
+        }
+    }
+    protected async Task Delete()
+    {
+        try
+        {
+            await http.DeleteAsync("/api/Table_1/" + id);
+            NavigationManager.NavigateTo("Table_1");
+        }
+        catch (Exception ex)
+        {
+            Exibir = true;
+            if (Env.IsDevelopment())
+            {
+                Mensagem = "Erro ao acessar os dados ...\n" + ex.StackTrace.ToString();
+            }
+            else
+            {
+                Mensagem = "Não foi possível excluir  ...";
+            }
+        }
+    }
+    void Cancel()
+    {
+        NavigationManager.NavigateTo("Table_1");
+    }
+}  
